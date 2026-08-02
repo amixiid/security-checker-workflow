@@ -1,11 +1,7 @@
 name: 'AragSoft Security'
-description: >-
-  Enterprise-grade security scanning in a single action: secret scanning,
-  dependency vulnerability auditing, static analysis (Semgrep), CodeQL,
-  Docker/container scanning (Trivy), license compliance, SBOM generation
-  (Syft) and repository security checks. Produces SARIF, JSON, Markdown and
-  HTML reports, a 0-100 security score, and optional pull-request comments.
+description: 'Enterprise GitHub Action for automated security scanning and vulnerability detection.'
 author: 'AragSoft'
+
 branding:
   icon: 'shield'
   color: 'blue'
