@@ -1,0 +1,41 @@
+---
+name: Bug report
+about: Report a bug or unexpected behaviour in AragSoft Security
+title: '[Bug]: '
+labels: ['bug']
+assignees: ''
+---
+
+**Describe the bug**
+A clear and concise description of what the bug is.
+
+**To reproduce**
+Steps to reproduce the behaviour:
+
+1. Trigger a scan on `...`
+2. Set input `...` to `...`
+3. See error
+
+**Expected behaviour**
+A clear and concise description of what you expected to happen.
+
+**Actual behaviour**
+What happened instead. Include the relevant log output (from the `AragSoft Security - ...` step groups).
+
+**Configuration**
+```yaml
+- uses: amixiid/aragsoft-security@v1
+  with:
+    # inputs you set here
+```
+
+**Environment**
+- Runner OS: [e.g. ubuntu-latest, macos-latest, windows-latest]
+- Action version: [e.g. v1.0.0]
+- Repository type: [e.g. public, private, monorepo]
+
+**Screenshots / artifacts**
+If applicable, add the downloaded `aragsoft-security-reports` artifact or screenshots.
+
+**Additional context**
+Add any other context about the problem here.

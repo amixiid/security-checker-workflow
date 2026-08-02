@@ -1,0 +1,273 @@
+name: 'AragSoft Security'
+description: >-
+  Enterprise-grade security scanning in a single action: secret scanning,
+  dependency vulnerability auditing, static analysis (Semgrep), CodeQL,
+  Docker/container scanning (Trivy), license compliance, SBOM generation
+  (Syft) and repository security checks. Produces SARIF, JSON, Markdown and
+  HTML reports, a 0-100 security score, and optional pull-request comments.
+author: 'AragSoft'
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  # ---- Failure gates -----------------------------------------------------
+  fail-on-secrets:
+    description: 'Fail the workflow when secrets are detected.'
+    required: false
+    default: 'true'
+  fail-on-high:
+    description: 'Fail the workflow when high-severity dependency vulnerabilities are found.'
+    required: false
+    default: 'false'
+  fail-on-critical:
+    description: 'Fail the workflow when critical-severity dependency vulnerabilities are found.'
+    required: false
+    default: 'true'
+  fail-on-license:
+    description: 'Fail the workflow when GPL-family (restrictive) licenses are detected.'
+    required: false
+    default: 'false'
+  fail-on-tool-error:
+    description: 'Fail the workflow when a security tool fails to execute.'
+    required: false
+    default: 'false'
+
+  # ---- Check toggles ----------------------------------------------------
+  enable-secrets:
+    description: 'Run secret scanning with Gitleaks.'
+    required: false
+    default: 'true'
+  enable-dependencies:
+    description: 'Run dependency vulnerability scanning with OSV-Scanner.'
+    required: false
+    default: 'true'
+  enable-semgrep:
+    description: 'Run static analysis with Semgrep.'
+    required: false
+    default: 'true'
+  enable-codeql:
+    description: 'Initialize and run GitHub CodeQL analysis.'
+    required: false
+    default: 'true'
+  enable-docker:
+    description: 'Run Docker security scanning with Trivy when a Dockerfile is present.'
+    required: false
+    default: 'true'
+  enable-license:
+    description: 'Run license compliance scanning.'
+    required: false
+    default: 'true'
+  enable-sbom:
+    description: 'Generate a Software Bill of Materials with Syft.'
+    required: false
+    default: 'true'
+  enable-repo:
+    description: 'Check repository security configuration (branch protection, CODEOWNERS, SECURITY.md, Dependabot, secret scanning).'
+    required: false
+    default: 'true'
+
+  # ---- Scan configuration ----------------------------------------------
+  semgrep-rules:
+    description: 'Semgrep rule set or path. Supports registry configs (p/security-audit) or a local path relative to the workspace.'
+    required: false
+    default: 'p/security-audit'
+  semgrep-severity-threshold:
+    description: 'Minimum Semgrep severity that fails the check (error, warning or info).'
+    required: false
+    default: 'warning'
+  codeql-languages:
+    description: 'Comma-separated languages for CodeQL. Leave empty to auto-detect from the repository.'
+    required: false
+    default: ''
+  docker-image:
+    description: 'Container image to scan for OS packages with Trivy (e.g. myorg/app:latest). Leave empty to skip OS package scanning.'
+    required: false
+    default: ''
+  docker-build:
+    description: 'Build the Docker image from the Dockerfile and scan it for OS packages and application dependencies.'
+    required: false
+    default: 'false'
+  sbom-format:
+    description: 'SBOM output format (cyclonedx, spdx or both).'
+    required: false
+    default: 'cyclonedx'
+  trivy-ignore-unfixed:
+    description: 'Exclude vulnerabilities that have no known fix from the Trivy file/config scans.'
+    required: false
+    default: 'true'
+
+  # ---- Tool versions ----------------------------------------------------
+  gitleaks-version:
+    description: 'Gitleaks version to install (without the leading v).'
+    required: false
+    default: '8.30.1'
+  osv-scanner-version:
+    description: 'OSV-Scanner version to install (without the leading v).'
+    required: false
+    default: '2.4.0'
+  trivy-version:
+    description: 'Trivy version to install (without the leading v).'
+    required: false
+    default: '0.72.0'
+  syft-version:
+    description: 'Syft version to install (without the leading v).'
+    required: false
+    default: '1.50.0'
+  semgrep-version:
+    description: 'Semgrep version to install (latest or an exact version, e.g. 1.130.0).'
+    required: false
+    default: 'latest'
+
+  # ---- Reporting --------------------------------------------------------
+  upload-artifacts:
+    description: 'Upload SARIF, JSON, Markdown, HTML reports and SBOM as workflow artifacts.'
+    required: false
+    default: 'true'
+  enable-pr-comment:
+    description: 'Post the security report as a comment on pull requests.'
+    required: false
+    default: 'true'
+  report-title:
+    description: 'Title used in reports and pull request comments.'
+    required: false
+    default: 'AragSoft Security Report'
+  debug:
+    description: 'Enable debug logging (tool versions, verbose output).'
+    required: false
+    default: 'false'
+
+outputs:
+  score:
+    description: 'Overall security score (0-100).'
+    value: ${{ steps.finalize.outputs.score }}
+  status:
+    description: 'Overall security status (pass, warning, fail).'
+    value: ${{ steps.finalize.outputs.status }}
+  exit-code:
+    description: 'Exit code the action produced (0 = pass, 1 = fail).'
+    value: ${{ steps.finalize.outputs.exit-code }}
+  secrets:
+    description: 'Secret scanning result (pass, warning, fail, skipped, error).'
+    value: ${{ steps.finalize.outputs.secrets }}
+  dependencies:
+    description: 'Dependency scan result (pass, warning, fail, skipped, error).'
+    value: ${{ steps.finalize.outputs.dependencies }}
+  code:
+    description: 'Static analysis result (pass, warning, fail, skipped, error).'
+    value: ${{ steps.finalize.outputs.code }}
+  codeql:
+    description: 'CodeQL result (pass, warning, fail, skipped, error).'
+    value: ${{ steps.finalize.outputs.codeql }}
+  docker:
+    description: 'Docker scan result (pass, warning, fail, skipped, error).'
+    value: ${{ steps.finalize.outputs.docker }}
+  licenses:
+    description: 'License scan result (pass, warning, fail, skipped, error).'
+    value: ${{ steps.finalize.outputs.licenses }}
+  repo:
+    description: 'Repository security result (pass, warning, fail, skipped, error).'
+    value: ${{ steps.finalize.outputs.repo }}
+
+runs:
+  using: composite
+  steps:
+    - name: Export AragSoft Security inputs
+      shell: bash
+      run: |
+        set -euo pipefail
+        {
+          echo "AS_FAIL_ON_SECRETS=${{ inputs.fail-on-secrets }}"
+          echo "AS_FAIL_ON_HIGH=${{ inputs.fail-on-high }}"
+          echo "AS_FAIL_ON_CRITICAL=${{ inputs.fail-on-critical }}"
+          echo "AS_FAIL_ON_LICENSE=${{ inputs.fail-on-license }}"
+          echo "AS_FAIL_ON_TOOL_ERROR=${{ inputs.fail-on-tool-error }}"
+          echo "AS_ENABLE_SECRETS=${{ inputs.enable-secrets }}"
+          echo "AS_ENABLE_DEPENDENCIES=${{ inputs.enable-dependencies }}"
+          echo "AS_ENABLE_SEMGREP=${{ inputs.enable-semgrep }}"
+          echo "AS_ENABLE_CODEQL=${{ inputs.enable-codeql }}"
+          echo "AS_ENABLE_DOCKER=${{ inputs.enable-docker }}"
+          echo "AS_ENABLE_LICENSE=${{ inputs.enable-license }}"
+          echo "AS_ENABLE_SBOM=${{ inputs.enable-sbom }}"
+          echo "AS_ENABLE_REPO=${{ inputs.enable-repo }}"
+          echo "AS_SEMGREP_RULES=${{ inputs.semgrep-rules }}"
+          echo "AS_SEMGREP_SEVERITY_THRESHOLD=${{ inputs.semgrep-severity-threshold }}"
+          echo "AS_CODEQL_LANGUAGES=${{ inputs.codeql-languages }}"
+          echo "AS_DOCKER_IMAGE=${{ inputs.docker-image }}"
+          echo "AS_DOCKER_BUILD=${{ inputs.docker-build }}"
+          echo "AS_SBOM_FORMAT=${{ inputs.sbom-format }}"
+          echo "AS_TRIVY_IGNORE_UNFIXED=${{ inputs.trivy-ignore-unfixed }}"
+          echo "AS_GITLEAKS_VERSION=${{ inputs.gitleaks-version }}"
+          echo "AS_OSV_SCANNER_VERSION=${{ inputs.osv-scanner-version }}"
+          echo "AS_TRIVY_VERSION=${{ inputs.trivy-version }}"
+          echo "AS_SYFT_VERSION=${{ inputs.syft-version }}"
+          echo "AS_SEMGREP_VERSION=${{ inputs.semgrep-version }}"
+          echo "AS_UPLOAD_ARTIFACTS=${{ inputs.upload-artifacts }}"
+          echo "AS_ENABLE_PR_COMMENT=${{ inputs.enable-pr-comment }}"
+          echo "AS_REPORT_TITLE=${{ inputs.report-title }}"
+          echo "AS_DEBUG=${{ inputs.debug }}"
+          echo "AS_ACTION_PATH=${{ github.action_path }}"
+          echo "AS_WORKSPACE=${{ github.workspace }}"
+          echo "AS_REPOSITORY=${{ github.repository }}"
+          echo "AS_SHA=${{ github.sha }}"
+          echo "AS_REF=${{ github.ref }}"
+          echo "AS_DEFAULT_BRANCH=${{ github.event.repository.default_branch }}"
+          echo "AS_EVENT_NAME=${{ github.event_name }}"
+          echo "AS_RUN_ID=${{ github.run_id }}"
+          echo "AS_TOKEN=${{ github.token }}"
+          echo "AS_ACTOR=${{ github.actor }}"
+        } >> "$GITHUB_ENV"
+
+    - name: Run AragSoft Security scans
+      id: aragsoft
+      shell: bash
+      run: bash "$GITHUB_ACTION_PATH/scripts/main.sh"
+
+    - name: Initialize CodeQL
+      id: codeql-init
+      if: ${{ inputs.enable-codeql == 'true' }}
+      continue-on-error: true
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ inputs.codeql-languages }}
+
+    - name: CodeQL Autobuild
+      id: codeql-autobuild
+      if: ${{ inputs.enable-codeql == 'true' && steps.codeql-init.outcome == 'success' }}
+      continue-on-error: true
+      uses: github/codeql-action/autobuild@v3
+
+    - name: Analyze CodeQL
+      id: codeql-analyze
+      if: ${{ inputs.enable-codeql == 'true' && steps.codeql-init.outcome == 'success' }}
+      continue-on-error: true
+      uses: github/codeql-action/analyze@v3
+      with:
+        output: ${{ runner.temp }}/aragsoft-security/codeql
+
+    - name: Finalize AragSoft Security report
+      id: finalize
+      shell: bash
+      env:
+        AS_CODEQL_INIT_OUTCOME: ${{ steps.codeql-init.outcome }}
+        AS_CODEQL_AUTOBUILD_OUTCOME: ${{ steps.codeql-autobuild.outcome }}
+        AS_CODEQL_ANALYZE_OUTCOME: ${{ steps.codeql-analyze.outcome }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/finalize.sh"
+
+    - name: Upload AragSoft Security reports
+      if: ${{ inputs.upload-artifacts == 'true' && !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: aragsoft-security-reports
+        path: ${{ runner.temp }}/aragsoft-security/**/*
+        if-no-files-found: ignore
+        retention-days: 7
+
+    - name: Upload AragSoft Security SBOM
+      if: ${{ inputs.upload-artifacts == 'true' && inputs.enable-sbom == 'true' && !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: aragsoft-security-sbom
+        path: ${{ runner.temp }}/aragsoft-security/sbom/**/*
+        if-no-files-found: ignore
+        retention-days: 7

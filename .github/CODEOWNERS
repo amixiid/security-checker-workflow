@@ -1,0 +1,7 @@
+# Default owners for the AragSoft Security repository.
+* @amixiid
+
+# Security-sensitive areas require the maintainer's review.
+action.yml @amixiid
+scripts/ @amixiid
+.github/workflows/ @amixiid

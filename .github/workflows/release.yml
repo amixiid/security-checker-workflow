@@ -1,0 +1,111 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Validate version tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          ref="${{ github.ref }}"
+          tag="${ref#refs/tags/}"
+          case "$tag" in
+            v[0-9]*.[0-9]*.[0-9]*)
+              echo "Full semver tag: $tag"
+              ;;
+            v[0-9]*.[0-9]*)
+              echo "Partial tag (skipping full release): $tag"
+              ;;
+            v[0-9]*)
+              echo "Major tag (skipping full release): $tag"
+              ;;
+            *)
+              echo "Unsupported tag format: $tag" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Install shellcheck
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/shellcheck"
+          curl -fsSL --retry 3 \
+            -o "$RUNNER_TEMP/shellcheck.tar.xz" \
+            "https://github.com/koalaman/shellcheck/releases/download/v0.10.0/shellcheck-v0.10.0.linux.x86_64.tar.xz"
+          tar -xf "$RUNNER_TEMP/shellcheck.tar.xz" -C "$RUNNER_TEMP/shellcheck"
+          echo "$RUNNER_TEMP/shellcheck/shellcheck-v0.10.0" >> "$GITHUB_PATH"
+
+      - name: Run shellcheck
+        run: shellcheck -x scripts/*.sh scripts/checks/*.sh
+
+      - name: Validate Node sources
+        run: |
+          set -euo pipefail
+          for f in src/*.js; do node --check "$f"; done
+
+      - name: Extract changelog section
+        id: changelog
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ github.ref_name }}"
+          version="${tag#v}"
+          section="$(awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { on=1; next }
+            on && $0 ~ "^## \\[" { exit }
+            on { print }
+          ' CHANGELOG.md)"
+          if [[ -z "$section" ]]; then
+            section="See the [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for the full list of changes."
+          fi
+          {
+            echo "body<<EOF"
+            echo "$section"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create or update major and minor tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ github.ref_name }}"
+          version="${tag#v}"
+          major="v${version%%.*}"
+          minor="v${version%.*}"
+          for t in "$major" "$minor"; do
+            if git rev-parse -q --verify "refs/tags/$t" >/dev/null 2>&1; then
+              git tag -f "$t" "$tag"
+            else
+              git tag "$t" "$tag"
+            fi
+            git push origin "$t" --force
+            echo "Updated tag $t -> $tag"
+          done
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && contains(github.ref, '.') }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: AragSoft Security ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.body }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true

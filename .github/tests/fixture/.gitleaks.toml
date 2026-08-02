@@ -1,0 +1,11 @@
+# Custom Gitleaks configuration for the test fixture.
+# Detects a deterministic, non-real test secret so the CI failure-gate test
+# does not trip GitHub push protection or secret scanning on the repository.
+
+title = "AragSoft Security test fixture config"
+
+[[rules]]
+id = "aragsoft-fixture-test-secret"
+description = "Deterministic test secret used by the CI failure-gate test"
+regex = '''FIXTURE-SECRET-[A-Z0-9]{20}'''
+secret-group = 0

@@ -1,0 +1,15 @@
+# Local artifacts and reports
+.aragsoft-security/
+*.sarif
+*.html
+report.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Tooling caches
+.trivy-cache/
+.semgrep_cache/
