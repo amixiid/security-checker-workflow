@@ -12,7 +12,7 @@ seriously. Thanks for helping to keep the project and its users safe.
 Always use the latest patch of the `v1` release line:
 
 ```yaml
-- uses: amixiid/aragsoft-security@v1
+- uses: amixiid/security-checker-workflow@v1
 ```
 
 ## Reporting a Vulnerability
@@ -22,7 +22,7 @@ Always use the latest patch of the `v1` release line:
 Instead, report privately via one of the following channels:
 
 - **GitHub Security Advisory:** open a private advisory at
-  <https://github.com/amixiid/aragsoft-security/security/advisories/new>
+  <https://github.com/amixiid/security-checker-workflow/security/advisories/new>
 - **Email:** security@aragsoft.example (replace with the maintainer's
   real address)
 

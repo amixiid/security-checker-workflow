@@ -101,7 +101,7 @@ All reports are written to `<runner.temp>/aragsoft-security/`:
 ## Full example
 
 ```yaml
-- uses: amixiid/aragsoft-security@v1
+- uses: amixiid/security-checker-workflow@v1
   with:
     # Failure gates
     fail-on-secrets: 'true'

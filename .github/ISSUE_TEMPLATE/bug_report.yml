@@ -24,7 +24,7 @@ What happened instead. Include the relevant log output (from the `AragSoft Secur
 
 **Configuration**
 ```yaml
-- uses: amixiid/aragsoft-security@v1
+- uses: amixiid/security-checker-workflow@v1
   with:
     # inputs you set here
 ```

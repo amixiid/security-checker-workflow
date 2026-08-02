@@ -30,8 +30,8 @@ Requirements:
 Clone and install the dev dependencies:
 
 ```bash
-git clone https://github.com/amixiid/aragsoft-security.git
-cd aragsoft-security
+git clone https://github.com/amixiid/security-checker-workflow.git
+  cd security-checker-workflow
 # No install step: this project has no runtime dependencies of its own.
 # The scan tools are downloaded on demand at run time.
 ```
@@ -143,5 +143,5 @@ not tolerated. Please report unacceptable behaviour to the maintainers.
 
 ## Getting help
 
-Open a [discussion](https://github.com/amixiid/aragsoft-security/discussions)
+Open a [discussion](https://github.com/amixiid/security-checker-workflow/discussions)
 or read `docs/TROUBLESHOOTING.md` and `docs/FAQ.md` first.

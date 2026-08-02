@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: amixiid/aragsoft-security@v1
+      - uses: amixiid/security-checker-workflow@v1
 ```
 
 ### Which checkout options should I use?
@@ -47,7 +47,7 @@ earlier commits.
 ### I only want some checks
 Disable the rest:
 ```yaml
-- uses: amixiid/aragsoft-security@v1
+- uses: amixiid/security-checker-workflow@v1
   with:
     enable-semgrep: 'false'
     enable-codeql: 'false'
@@ -84,7 +84,7 @@ critical/high dependency vulnerabilities, or a failed gate you enabled.
 ### Can I look without failing the build?
 Yes — set the gates to `false`:
 ```yaml
-- uses: amixiid/aragsoft-security@v1
+- uses: amixiid/security-checker-workflow@v1
   with:
     fail-on-secrets: 'false'
     fail-on-critical: 'false'

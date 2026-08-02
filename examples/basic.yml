@@ -18,4 +18,4 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: amixiid/aragsoft-security@v1
+      - uses: amixiid/security-checker-workflow@v1

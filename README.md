@@ -7,12 +7,12 @@
 `Enterprise-grade security scanning for your GitHub repositories — secrets, dependencies, static analysis, CodeQL, Docker, licenses, SBOM and repository hardening, in a single composite action with a 0–100 score and pull-request reports.`
 
 [![Marketplace](https://img.shields.io/badge/GitHub_Marketplace-AragSoft_Security-blue?logo=github&logoColor=white)](https://github.com/marketplace) <!-- logo placeholder -->
-[![test](https://github.com/amixiid/aragsoft-security/actions/workflows/test.yml/badge.svg)](https://github.com/amixiid/aragsoft-security/actions/workflows/test.yml)
-[![release](https://github.com/amixiid/aragsoft-security/actions/workflows/release.yml/badge.svg)](https://github.com/amixiid/aragsoft-security/actions/workflows/release.yml)
+[![test](https://github.com/amixiid/security-checker-workflow/actions/workflows/test.yml/badge.svg)](https://github.com/amixiid/security-checker-workflow/actions/workflows/test.yml)
+[![release](https://github.com/amixiid/security-checker-workflow/actions/workflows/release.yml/badge.svg)](https://github.com/amixiid/security-checker-workflow/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ```yaml
-- uses: amixiid/aragsoft-security@v1
+- uses: amixiid/security-checker-workflow@v1
 ```
 
 **Linux · macOS · Windows**
@@ -100,7 +100,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: amixiid/aragsoft-security@v1
+      - uses: amixiid/security-checker-workflow@v1
 ```
 
 > **Tip:** use `with: fetch-depth: 0` on `actions/checkout` so Gitleaks can
@@ -125,13 +125,13 @@ permissions:
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: amixiid/aragsoft-security@v1
+- uses: amixiid/security-checker-workflow@v1
 ```
 
 ### Fail only on critical issues, skip Docker and CodeQL
 
 ```yaml
-- uses: amixiid/aragsoft-security@v1
+- uses: amixiid/security-checker-workflow@v1
   with:
     enable-codeql: 'false'
     enable-docker: 'false'
@@ -302,10 +302,10 @@ rolling tags:
 
 ```yaml
 # Pin to a major version for auto-updates
-- uses: amixiid/aragsoft-security@v1
+- uses: amixiid/security-checker-workflow@v1
 
 # Or pin exactly for reproducibility
-- uses: amixiid/aragsoft-security@v1.0.0
+- uses: amixiid/security-checker-workflow@v1.0.0
 ```
 
 ## Contributing

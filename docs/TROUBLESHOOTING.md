@@ -103,7 +103,7 @@ check is marked `error`.
 
 ## Still stuck?
 
-Open an issue at <https://github.com/amixiid/aragsoft-security/issues> and
+Open an issue at <https://github.com/amixiid/security-checker-workflow/issues> and
 include:
 
 - the runner OS and action version,

@@ -43,5 +43,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `release.yml` workflow: automatic GitHub Releases from semver tags, with
   maintenance of `v1` / `v1.0` rolling tags.
 
-[Unreleased]: https://github.com/amixiid/aragsoft-security/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/amixiid/aragsoft-security/releases/tag/v1.0.0
+[Unreleased]: https://github.com/amixiid/security-checker-workflow/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/amixiid/security-checker-workflow/releases/tag/v1.0.0
